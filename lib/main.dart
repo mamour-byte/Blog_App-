@@ -1,4 +1,5 @@
 import 'package:blogapp/screen/ProfilPage.dart';
+import 'package:blogapp/screen/login.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:blogapp/screen/HomePage.dart';
@@ -49,6 +50,7 @@ class Home extends StatelessWidget {
             "Accueil",
             "Add Post",
             "Profil",
+            "Login"
           ][currentIndex],
         ),
         backgroundColor: Colors.blueGrey,
@@ -57,6 +59,7 @@ class Home extends StatelessWidget {
         const HomePage(),
         const AddPostPage(),
         const Profilpage(),
+        LoginPage(),
       ][currentIndex],
       bottomNavigationBar: FlashyTabBar(
         backgroundColor: Colors.blueGrey,
@@ -86,6 +89,13 @@ class Home extends StatelessWidget {
               size: 35,
             ),
             title: const Text("Profil"),
+          ),
+          FlashyTabBarItem(
+            icon: const Icon(
+              Icons.person_3_outlined,
+              size: 35,
+            ),
+            title: const Text("Login"),
           ),
         ],
       ),

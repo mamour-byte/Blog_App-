@@ -37,7 +37,7 @@ dependencies:
   flashy_tab_bar2: ^0.0.10
   http: ^1.0.0
   shared_preferences: ^2.5.0
-  image_picker: ^1.0.8
+  flutter_signin_button: ^2.0.0
 
 dev_dependencies:
   flutter_test:
