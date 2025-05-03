@@ -85,7 +85,7 @@ Future<APIResponse> getUserDetail() async {
   try {
     String token = await getToken();
     final response = await http.get(
-      Uri.parse(userURL),  // Utilisation de la constante ici
+      Uri.parse(userURL),
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
@@ -94,7 +94,8 @@ Future<APIResponse> getUserDetail() async {
 
     switch (response.statusCode) {
       case 200:
-        apiResponse.data = User.fromJson(jsonDecode(response.body));
+        final data = jsonDecode(response.body);
+        apiResponse.data = User.fromJsonWithoutToken(data['user']);
         break;
       case 422:
         final errors = jsonDecode(response.body)['error'];
@@ -103,7 +104,6 @@ Future<APIResponse> getUserDetail() async {
       case 403:
         apiResponse.error = jsonDecode(response.body)['message'];
         break;
-
       default:
         apiResponse.error = somethingWentWrong;
         break;
@@ -113,6 +113,7 @@ Future<APIResponse> getUserDetail() async {
   }
   return apiResponse;
 }
+
 
 
 // get token

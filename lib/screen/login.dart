@@ -53,8 +53,12 @@ class _LoginPageState extends State<LoginPage> {
 
   void _saveAndRedirectionToHome(User user) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+
     await pref.setString('token', user.token ?? '');
     await pref.setInt('userId', user.id ?? 0);
+    await pref.setString('name', user.name ?? '');
+    await pref.setString('email', user.email ?? '');
+    await pref.setString('image', user.image ?? '');
 
     if (!mounted) return;
 
