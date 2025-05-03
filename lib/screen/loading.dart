@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:blogapp/constant.dart';
 import 'package:blogapp/models/api_response.dart';
 import 'package:blogapp/services/user_services.dart';
-
+import '../main.dart';
 import 'login.dart';
 
 class Loading extends StatefulWidget {
@@ -30,9 +30,8 @@ class _LoadingState extends State<Loading> {
       APIResponse response = await getUserDetail();
       if (response.error == null) {
         // Replace this with your HomePage or Main screen when login is successful
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => LoginPage()),
-              (route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MyApp()),
         );
       } else if (response.error == unauthorized) {
         Navigator.of(context).pushAndRemoveUntil(

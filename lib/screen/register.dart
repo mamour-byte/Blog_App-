@@ -1,5 +1,10 @@
+import 'package:blogapp/services/user_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
+import '../models/api_response.dart';
+import '../models/user.dart';
 import '../utils/validators.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_input.dart';
@@ -19,10 +24,43 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  bool loading = false;
+
+  void registerUser() async {
+    setState(() {
+      loading = true;
+    });
+    APIResponse response = await register(_nameController.text, _emailController.text, _passwordController.text);
+    setState(() {
+      loading = false;
+    });
+    if (response.error == null) {
+      _saveAndRedirectionToHome(response.data as User);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${response.error}')),
+      );
+    }
+  }
+
+
+  void _saveAndRedirectionToHome(User user) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString('token', user.token ?? '');
+    await pref.setInt('userId', user.id ?? 0);
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const MyApp()),
+    );
+  }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Registration logic
+      setState(() {
+        loading = true;
+      });
+      registerUser();
     }
   }
 
@@ -74,7 +112,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     icon: Icons.lock_outline,
                   ),
                   const SizedBox(height: 24),
-                  CustomButton(text: 'Register', onPressed: _submit),
+                  CustomButton(
+                    text: loading ? 'Loading...' : 'Sign up',
+                    onPressed: loading ? null : _submit,
+                  ),
                   const SizedBox(height: 24),
                   const Text('or', style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 16),
@@ -93,7 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             MaterialPageRoute(builder: (context) => const LoginPage()),
                           );
                         },
-                        child: const Text("Sign Up"),
+                        child: const Text("Sign In"),
                       ),
                     ],
                   ),

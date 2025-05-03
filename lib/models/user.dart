@@ -22,7 +22,7 @@ class User{
         name: json['user']['name'],
         image: json['user']['image'],
         email: json['user']['email'],
-        token: json['user']['token']
+        token: json['token']
       );
     }
 }

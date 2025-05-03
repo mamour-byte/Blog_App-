@@ -79,19 +79,18 @@ Future<APIResponse> register(String name , String email, String password) async 
 }
 
 
-
-
-// Get User Details
+// get User Details
 Future<APIResponse> getUserDetail() async {
   APIResponse apiResponse = APIResponse();
   try {
     String token = await getToken();
     final response = await http.get(
-      Uri.parse(registerURL),
+      Uri.parse(userURL),  // Utilisation de la constante ici
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
-      });
+      },
+    );
 
     switch (response.statusCode) {
       case 200:
@@ -101,19 +100,20 @@ Future<APIResponse> getUserDetail() async {
         final errors = jsonDecode(response.body)['error'];
         apiResponse.error = errors[errors.keys.elementAt(0)][0];
         break;
-      case 403 :
+      case 403:
         apiResponse.error = jsonDecode(response.body)['message'];
         break;
 
       default:
         apiResponse.error = somethingWentWrong;
-        break ;
+        break;
     }
   } catch (e) {
     apiResponse.error = somethingWentWrong;
   }
   return apiResponse;
 }
+
 
 // get token
 Future<String> getToken() async{

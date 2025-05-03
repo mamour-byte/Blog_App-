@@ -1,6 +1,12 @@
+import 'package:blogapp/models/api_response.dart';
+import 'package:blogapp/models/user.dart';
 import 'package:blogapp/screen/register.dart';
+import 'package:blogapp/screen/sendEmail.dart';
+import 'package:blogapp/services/user_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
 import '../utils/validators.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_input.dart';
@@ -17,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool loading = false;
 
   void _loginWithGoogle() {
     // TODO: Google login
@@ -26,9 +33,42 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: Facebook login
   }
 
+  void loginUser() async {
+    setState(() {
+      loading = true;
+    });
+    APIResponse response = await login(_emailController.text, _passwordController.text);
+    setState(() {
+      loading = false;
+    });
+    if (response.error == null) {
+      _saveAndRedirectionToHome(response.data as User);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${response.error}')),
+      );
+    }
+  }
+
+
+  void _saveAndRedirectionToHome(User user) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString('token', user.token ?? '');
+    await pref.setInt('userId', user.id ?? 0);
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const MyApp()),
+    );
+  }
+
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Login logic
+      setState(() {
+        loading = true;
+      });
+      loginUser();
     }
   }
 
@@ -66,12 +106,20 @@ class _LoginPageState extends State<LoginPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SendEmailPage()),
+                        );
+                      },
                       child: const Text('Forgot password?'),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  CustomButton(text: 'Login', onPressed: _submit),
+                  CustomButton(
+                    text: loading ? 'Loading...' : 'Login',
+                    onPressed: loading ? null : _submit,
+                  ),
                   const SizedBox(height: 24),
                   const Text('or', style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 16),
@@ -87,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterPage()),
+                            MaterialPageRoute(builder: (_) => const RegisterPage()),
                           );
                         },
                         child: const Text("Sign Up"),
